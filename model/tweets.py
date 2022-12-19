@@ -6,16 +6,41 @@ class Tweet():
     @staticmethod
     def parse_tweets_from_json(json: dict):
         data = json.get("data")
+        includes = json.get("includes")
+        referencedTweets = Tweet.parse_included_tweets(includes.get("tweets"))
+
         tweets = []
         for item in data:
-            tweet = Tweet()
-            tweet.id = item.get("id")
-            tweet.text = item.get("text")
-            tweet.referencedTweets = item.get("referenced_tweets") if item.get("referenced_tweets") else {}
-            tweets.append(tweet)
+            if Tweet.include_tweet(item, referencedTweets):
+                tweet = Tweet()
+                tweet.id = item.get("id")
+                tweet.text = item.get("text")
+                tweet.referencedTweets = item.get("referenced_tweets") if item.get("referenced_tweets") else {}
+                tweets.append(tweet)
         
         return tweets
     
+    @staticmethod
+    def include_tweet(tweet: dict, referencedTweetDict: dict):
+        referencedTweets = tweet.get("referenced_tweets")
+        if referencedTweets:
+            for ref in referencedTweets:
+                refType = ref.get("type")
+                # "retweeted" and "quoted" tweets will be included unless they're
+                # a reply to someone else
+                if refType == "replied_to":
+                    # A reply to someone else is excluded, a reply to yourself is
+                    # included _if_ it's part of a thread started by yourself
+                    tweetData = referencedTweetDict.get(ref.get("id"))
+                    if tweetData and tweetData["author_id"] != tweet.get("author_id"):
+                        return False
+
+                    includeReferencedTweet = Tweet.include_tweet(tweetData, referencedTweetDict)
+                    if not includeReferencedTweet:
+                        return False
+
+        return True
+
     @staticmethod
     def parse_authors(json: list):
         # Return a dict of author IDs to their 'name' and 'username'

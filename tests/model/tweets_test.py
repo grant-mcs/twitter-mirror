@@ -191,9 +191,9 @@ class TestTweets(unittest.TestCase):
             }
         }
         tweets = Tweet.parse_tweets_from_json(json)
-        self.assertEqual(6, len(tweets))
-        self.assertEqual("I'm just a plain old tweet", tweets[3].text)
-        self.assertEqual(0, len(tweets[3].referencedTweets))
+        self.assertEqual(3, len(tweets))
+        self.assertEqual("I'm just a plain old tweet", tweets[1].text)
+        self.assertEqual(0, len(tweets[1].referencedTweets))
 
 
     def test_parse_authors(self):
@@ -216,6 +216,78 @@ class TestTweets(unittest.TestCase):
         tweets = Tweet.parse_included_tweets(json)
         self.assertEqual(3, len(tweets))
         self.assertEqual("Tweetledum", tweets["333333"]["text"])
+
+    
+    def test_include_tweet(self):
+        # Simple tweet, no referenced tweets
+        tweet = {
+            "id": 111111,
+            "text": "Tweet tweet",
+            "author_id": 1111
+        }
+        self.assertTrue(Tweet.include_tweet(tweet, {}))
+
+        # Retweet
+        tweet = {
+            "id": 111111,
+            "text": "Tweet tweet",
+            "author_id": 1111,
+            "referenced_tweets": [
+                {"id": "222222", "type": "retweeted"}
+            ]
+        }
+        self.assertTrue(Tweet.include_tweet(tweet, {}))
+
+        # Quote tweet
+        tweet = {
+            "id": 111111,
+            "text": "Tweet tweet",
+            "author_id": 1111,
+            "referenced_tweets": [
+                {"id": "222222", "type": "quoted"}
+            ]
+        }
+        self.assertTrue(Tweet.include_tweet(tweet, {}))
+
+        # Reply to someone else
+        referencedTweets = {
+            "222222": {
+                "author_id": "2222",
+                "text": "1 + 1 = 2"
+            }
+        }
+        tweet = {
+            "id": 111111,
+            "text": "@Me This is the real answer",
+            "author_id": "1111",
+            "referenced_tweets": [
+                {"id": "222222", "type": "replied_to"}
+            ]
+        }
+        self.assertFalse(Tweet.include_tweet(tweet, referencedTweets))
+
+        # Reply in a thread started by someone else
+        referencedTweets = {
+            "222222": {
+                "author_id": "1111",
+                "text": "@You 1 + 1 = 10",
+                "referenced_tweets": [
+                    {"id": "333333", "type": "replied_to"},
+                ],
+            },
+            "333333": {
+                "author_id": "2222",
+                "text": "1 + 1 = 2",
+            },
+        }
+        self.assertFalse(Tweet.include_tweet(tweet, referencedTweets))
+
+        # Reply in a thread started by tweet author
+        referencedTweets["333333"] = {
+            "author_id": "1111",
+            "text": "1 + 1 = 2",
+        }
+        self.assertTrue(Tweet.include_tweet(tweet, referencedTweets))
 
 
 if __name__ == '__main__':
