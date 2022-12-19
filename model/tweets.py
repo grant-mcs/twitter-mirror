@@ -27,3 +27,13 @@ class Tweet():
             }
         return authors
 
+    @staticmethod
+    def parse_included_tweets(json: list):
+        # Return a dict of referenced tweet IDs to their 'author_id' and 'text'
+        tweets = {}
+        for tweet in json:
+            tweets[tweet.get("id")] = {
+                "author_id": tweet.get("author_id"),
+                "text": tweet.get("text"),
+            }
+        return tweets
