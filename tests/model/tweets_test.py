@@ -8,6 +8,18 @@ class TestTweets(unittest.TestCase):
         json = {
             "data": [
                 {
+                    "author_id": "281877818",
+                    "id": "1604637321894055936",
+                    "referenced_tweets": [
+                        {
+                            "id": "1604617643973124097",
+                            "type": "retweeted"
+                        }
+                    ],
+                    "text": "RT @elonmusk: Should I step down as head of Twitter? I will abide by the results of this poll."
+                },
+                {
+                    "author_id": "281877818",
                     "id": "1604555574942715904",
                     "referenced_tweets": [
                         {
@@ -22,6 +34,7 @@ class TestTweets(unittest.TestCase):
                     "text": "@MarcGoldwein @cartervance My next tweet may be of interest. Always scroll down!\n\nhttps://t.co/QzBbheCC8D"
                 },
                 {
+                    "author_id": "281877818",
                     "id": "1604549350469693440",
                     "referenced_tweets": [
                         {
@@ -32,10 +45,12 @@ class TestTweets(unittest.TestCase):
                     "text": "@alfred_twu Well the % of 20-21 is flat..."
                 },
                 {
+                    "author_id": "281877818",
                     "id": "1604548832401838080",
                     "text": "I'm just a plain old tweet"
                 },
                 {
+                    "author_id": "281877818",
                     "id": "1604547577772331009",
                     "referenced_tweets": [
                         {
@@ -46,6 +61,7 @@ class TestTweets(unittest.TestCase):
                     "text": "@emollick At least, if we believe this is causal."
                 },
                 {
+                    "author_id": "281877818",
                     "id": "1604547244522319872",
                     "referenced_tweets": [
                         {
@@ -122,7 +138,24 @@ class TestTweets(unittest.TestCase):
                         ],
                         "text": "@Noahpinion I did. Also there will be 15% less high school students by 2026."
                     },
-                ]
+                ],
+                "users": [
+                    {
+                        "id": "281877818",
+                        "name": "Noah Smith \ud83d\udc07\ud83c\uddfa\ud83c\udde6",
+                        "username": "Noahpinion"
+                    },
+                    {
+                        "id": "44196397",
+                        "name": "Elon Musk",
+                        "username": "elonmusk"
+                    },
+                    {
+                        "id": "20651841",
+                        "name": "Wally Nowinski",
+                        "username": "Nowooski"
+                    },
+                ],
             },
             "meta": {
                 "newest_id": "1604555574942715904",
@@ -132,12 +165,20 @@ class TestTweets(unittest.TestCase):
             }
         }
         tweets = Tweet.parse_tweets_from_json(json)
-        self.assertEqual(5, len(tweets))
-        self.assertEqual("I'm just a plain old tweet", tweets[2].text)
-        self.assertEqual(0, len(tweets[2].referencedTweets))
-        self.assertEqual("I'm just a plain old tweet", tweets[2].text)
-        self.assertEqual(0, len(tweets[2].referencedTweets))
+        self.assertEqual(6, len(tweets))
+        self.assertEqual("I'm just a plain old tweet", tweets[3].text)
+        self.assertEqual(0, len(tweets[3].referencedTweets))
 
+
+    def test_parse_authors(self):
+        json = [
+            {"id": "1111", "name": "User One", "username": "user_one"},
+            {"id": "2222", "name": "User Two", "username": "user_two"},
+            {"id": "3333", "name": "User Three", "username": "user_three"},
+        ]
+        authors = Tweet.parse_authors(json)
+        self.assertEqual(3, len(authors))
+        self.assertEqual("User Three", authors["3333"]["name"])
 
 
 if __name__ == '__main__':

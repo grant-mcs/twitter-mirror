@@ -16,4 +16,14 @@ class Tweet():
         
         return tweets
     
+    @staticmethod
+    def parse_authors(json: list):
+        # Return a dict of author IDs to their 'name' and 'username'
+        authors = {}
+        for author in json:
+            authors[author.get("id")] = {
+                "name": author.get("name"),
+                "username": author.get("username"),
+            }
+        return authors
 
