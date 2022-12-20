@@ -6,8 +6,11 @@ class Tweet():
     @staticmethod
     def parse_tweets_from_json(json: dict):
         data = json.get("data")
+        if not data:
+            return []
+
         includes = json.get("includes")
-        referencedTweets = Tweet.parse_included_tweets(includes.get("tweets"))
+        referencedTweets = Tweet.parse_included_tweets(includes.get("tweets")) if includes else {}
 
         tweets = []
         for item in data:
@@ -22,6 +25,9 @@ class Tweet():
     
     @staticmethod
     def include_tweet(tweet: dict, referencedTweetDict: dict):
+        if not tweet:
+            return False
+
         referencedTweets = tweet.get("referenced_tweets")
         if referencedTweets:
             for ref in referencedTweets:
