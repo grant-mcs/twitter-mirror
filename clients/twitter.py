@@ -10,7 +10,7 @@ class Twitter():
     def headers(self):
         return {
             "Authorization": f"Bearer " + self.bearer_token(),
-            "User-Agent": "v2UserTweetsPython"
+            "User-Agent": "twitter-mirror"
         }
 
     def tweet_url_for_user(self, user_id):
@@ -18,7 +18,6 @@ class Twitter():
     
     def get_tweets(self, url, params):
         response = requests.request("GET", url, headers=self.headers(), params=params)
-        print(response.status_code)
         if response.status_code != 200:
             raise Exception(
                 "Request returned an error: {} {}".format(
@@ -29,4 +28,4 @@ class Twitter():
 
     def latest_tweet_content(self, user_id, since_id):
         url = self.tweet_url_for_user(user_id)
-        return self.get_tweets(url, {"since_id": since_id, "expansions": "referenced_tweets.id"})
+        return self.get_tweets(url, {"since_id": since_id, "expansions": "referenced_tweets.id,referenced_tweets.id.author_id"})
