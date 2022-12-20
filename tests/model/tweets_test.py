@@ -290,5 +290,27 @@ class TestTweets(unittest.TestCase):
         self.assertTrue(Tweet.include_tweet(tweet, referencedTweets))
 
 
+    def test_parse_media_from_json(self):
+        tweet = {
+            "id": 111111,
+            "text": "Picture this",
+            "author_id": "1111",
+        }
+        media = Tweet.parse_media_from_json(tweet, {})
+        self.assertEqual([], media)
+
+        tweet["attachments"] = {
+            "media_keys": ["1234_12"]
+        }
+        mediaData = {
+            "1234_12": {
+                "key": "1234_12",
+                "type": "photo",
+                "url": "https://testimg.com/1234_12"
+            }
+        }
+        media = Tweet.parse_media_from_json(tweet, mediaData)
+        self.assertEqual([{"key": "1234_12", "type": "photo", "url": "https://testimg.com/1234_12"}], media)
+
 if __name__ == '__main__':
     unittest.main()

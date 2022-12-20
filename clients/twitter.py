@@ -38,4 +38,6 @@ class Twitter():
         return response.json()
 
     def latest_tweet_content(self, user_id: str, since_id: str):
-        return self.get_tweets(user_id, {"since_id": since_id, "expansions": "referenced_tweets.id,referenced_tweets.id.author_id"})
+        expansions = "referenced_tweets.id,referenced_tweets.id.author_id,attachments.media_keys"
+        mediaFields = "url"
+        return self.get_tweets(user_id, {"since_id": since_id, "expansions": expansions, "media.fields": mediaFields})

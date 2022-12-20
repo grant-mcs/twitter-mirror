@@ -2,6 +2,7 @@ class Tweet():
     id: int
     text: str
     referencedTweets: dict
+    media: list
 
     @staticmethod
     def parse_tweets_from_json(json: dict):
@@ -11,6 +12,7 @@ class Tweet():
 
         includes = json.get("includes")
         referencedTweets = Tweet.parse_included_tweets(includes.get("tweets")) if includes else {}
+        media = Tweet.parse_included_media(includes.get("media")) if includes else {}
 
         tweets = []
         for item in data:
@@ -19,10 +21,29 @@ class Tweet():
                 tweet.id = item.get("id")
                 tweet.text = item.get("text")
                 tweet.referencedTweets = item.get("referenced_tweets") if item.get("referenced_tweets") else {}
+                tweet.media = Tweet.parse_media_from_json(item, media)
                 tweets.append(tweet)
         
         return tweets
-    
+
+    @staticmethod
+    def parse_media_from_json(item: dict, media: dict):
+        attachments = item.get("attachments")
+        if not attachments:
+            return []
+
+        mediaKeys = attachments.get("media_keys")
+        if not mediaKeys:
+            return []
+
+        tweetMedia = []
+        for key in mediaKeys:
+            mediaData = media.get(key)
+            if mediaData:
+                tweetMedia.append(mediaData)
+
+        return tweetMedia
+
     @staticmethod
     def include_tweet(tweet: dict, referencedTweetDict: dict):
         if not tweet:
@@ -62,9 +83,27 @@ class Tweet():
     def parse_included_tweets(json: list):
         # Return a dict of referenced tweet IDs to their 'author_id' and 'text'
         tweets = {}
+        if not json:
+            return tweets
+
         for tweet in json:
             tweets[tweet.get("id")] = {
                 "author_id": tweet.get("author_id"),
                 "text": tweet.get("text"),
             }
         return tweets
+
+    @staticmethod
+    def parse_included_media(json: list):
+        # Return a dict of media keys to their 'type' and 'url'
+        media = {}
+        if not json:
+            return media
+
+        for item in json:
+            media[item.get("media_key")] = {
+                "key": item.get("media_key"),
+                "type": item.get("type"),
+                "url": item.get("url"),
+            }
+        return media
