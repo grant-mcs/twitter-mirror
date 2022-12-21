@@ -16,6 +16,9 @@ class Tweet():
         else:
             self.media = Tweet.parse_media_from_json(tweetData, media)
 
+    def __str__(self):
+        return "Tweet " + self.id + ", text: \"" + self.text + "\", media = " + str(self.media) + ", referenced tweets = " + str(self.referencedTweets)
+
     def is_retweet(self):
         return self.text.startswith("RT ") and \
                len(self.referencedTweets) == 1 and \
