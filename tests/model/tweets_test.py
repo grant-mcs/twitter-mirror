@@ -16,7 +16,7 @@ class TestTweets(unittest.TestCase):
                             "type": "retweeted"
                         }
                     ],
-                    "text": "RT @elonmusk: Should I step down as head of Twitter? I will abide by the results of this poll."
+                    "text": "RT @elonmusk: Should I step down ..."
                 },
                 {
                     "author_id": "281877818",
@@ -194,6 +194,10 @@ class TestTweets(unittest.TestCase):
         self.assertEqual(3, len(tweets))
         self.assertEqual("I'm just a plain old tweet", tweets[1].text)
         self.assertEqual(0, len(tweets[1].referencedTweets))
+
+        # Retweets use the text from the referenced tweet
+        self.assertEqual("RT @elonmusk: Should I step down as head of Twitter? I will abide by the results of this poll.", tweets[0].text)
+        self.assertEqual(1, len(tweets[0].referencedTweets))
 
 
     def test_parse_authors(self):

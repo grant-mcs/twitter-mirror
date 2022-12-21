@@ -4,6 +4,25 @@ class Tweet():
     referencedTweets: dict
     media: list
 
+    def __init__(self, tweetData: dict, media: dict, referencedTweets: dict):
+        self.id = tweetData.get("id")
+        self.text = tweetData.get("text")
+        self.referencedTweets = tweetData.get("referenced_tweets") if tweetData.get("referenced_tweets") else {}
+        self.media = Tweet.parse_media_from_json(tweetData, media)
+        self.update_text(referencedTweets)
+
+    def is_retweet(self):
+        return self.text.startswith("RT ") and \
+               len(self.referencedTweets) == 1 and \
+               self.referencedTweets[0].get("type") == "retweeted"
+
+    def update_text(self, referencedTweetData: dict):
+        # If this is a retweet, use the text from the referenced tweet
+        if self.is_retweet():
+            prefixIdx = self.text.index(":") + 2
+            prefix = self.text[:prefixIdx]
+            self.text = prefix + referencedTweetData.get(self.referencedTweets[0].get("id")).get("text")
+
     @staticmethod
     def parse_tweets_from_json(json: dict):
         data = json.get("data")
@@ -17,11 +36,7 @@ class Tweet():
         tweets = []
         for item in data:
             if Tweet.include_tweet(item, referencedTweets):
-                tweet = Tweet()
-                tweet.id = item.get("id")
-                tweet.text = item.get("text")
-                tweet.referencedTweets = item.get("referenced_tweets") if item.get("referenced_tweets") else {}
-                tweet.media = Tweet.parse_media_from_json(item, media)
+                tweet = Tweet(item, media, referencedTweets)
                 tweets.append(tweet)
         
         return tweets
