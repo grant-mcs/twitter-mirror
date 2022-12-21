@@ -4,24 +4,32 @@ class Tweet():
     referencedTweets: dict
     media: list
 
-    def __init__(self, tweetData: dict, media: dict, referencedTweets: dict):
+    def __init__(self, tweetData: dict, media: dict, referencedTweetData: dict):
         self.id = tweetData.get("id")
-        self.text = tweetData.get("text")
         self.referencedTweets = tweetData.get("referenced_tweets") if tweetData.get("referenced_tweets") else {}
-        self.media = Tweet.parse_media_from_json(tweetData, media)
-        self.update_text(referencedTweets)
+        self.text = tweetData.get("text")
+
+        # Retweets have most of the relevant info in the referenced tweet
+        if self.is_retweet():
+            self.update_text(referencedTweetData)
+            self.media = Tweet.parse_media_from_json(self.retweet_data(referencedTweetData), media)
+        else:
+            self.media = Tweet.parse_media_from_json(tweetData, media)
 
     def is_retweet(self):
         return self.text.startswith("RT ") and \
                len(self.referencedTweets) == 1 and \
                self.referencedTweets[0].get("type") == "retweeted"
 
+    def retweet_data(self, referencedTweetData: dict):
+        return referencedTweetData.get(self.referencedTweets[0].get("id"))
+
     def update_text(self, referencedTweetData: dict):
         # If this is a retweet, use the text from the referenced tweet
         if self.is_retweet():
             prefixIdx = self.text.index(":") + 2
             prefix = self.text[:prefixIdx]
-            self.text = prefix + referencedTweetData.get(self.referencedTweets[0].get("id")).get("text")
+            self.text = prefix + self.retweet_data(referencedTweetData).get("text")
 
     @staticmethod
     def parse_tweets_from_json(json: dict):
@@ -102,10 +110,7 @@ class Tweet():
             return tweets
 
         for tweet in json:
-            tweets[tweet.get("id")] = {
-                "author_id": tweet.get("author_id"),
-                "text": tweet.get("text"),
-            }
+            tweets[tweet.get("id")] = tweet
         return tweets
 
     @staticmethod

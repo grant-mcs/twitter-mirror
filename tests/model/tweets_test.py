@@ -73,11 +73,23 @@ class TestTweets(unittest.TestCase):
                 },
             ],
             "includes": {
+                "media": [
+                    {
+                        "media_key": "mediakey_1",
+                        "type": "photo",
+                        "url": "https://pbs.twimg.com/media/image1.jpg"
+                    }
+                ],
                 "tweets": [
                     {
                         "author_id": "44196397",
                         "id": "1604617643973124097",
-                        "text": "Should I step down as head of Twitter? I will abide by the results of this poll."
+                        "text": "Should I step down as head of Twitter? I will abide by the results of this poll.",
+                        "attachments": {
+                            "media_keys": [
+                                "mediakey_1"
+                            ]
+                        },
                     },
                     {
                         "author_id": "281877818",
@@ -191,13 +203,15 @@ class TestTweets(unittest.TestCase):
             }
         }
         tweets = Tweet.parse_tweets_from_json(json)
-        self.assertEqual(3, len(tweets))
+        self.assertEqual(2, len(tweets))
         self.assertEqual("I'm just a plain old tweet", tweets[1].text)
         self.assertEqual(0, len(tweets[1].referencedTweets))
 
         # Retweets use the text from the referenced tweet
         self.assertEqual("RT @elonmusk: Should I step down as head of Twitter? I will abide by the results of this poll.", tweets[0].text)
         self.assertEqual(1, len(tweets[0].referencedTweets))
+        self.assertEqual(1, len(tweets[0].media))
+        self.assertEqual("https://pbs.twimg.com/media/image1.jpg", tweets[0].media[0].get("url"))
 
 
     def test_parse_authors(self):
