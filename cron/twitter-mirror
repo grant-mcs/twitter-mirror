@@ -1,0 +1,2 @@
+# Runs twitter-mirror python script every 10 minutes
+*/10 * * * * root cd /var/www/twitter-mirror/; python3 twitter-mirror.py >> /var/log/cron/twitter-mirror.log 2>&1
