@@ -8,6 +8,18 @@ class User():
         self.mastodon_instance = mastodon_instance
         self.mastodon_token = mastodon_token
 
+    @staticmethod
+    def load_users():
+        f = open("data/users", "r")
+        users = []
+        for line in f:
+            userProperties = line.split()
+            if len(userProperties) == 3:
+                users.append(User(userProperties[0], userProperties[1], userProperties[2]))
+
+        f.close()
+        return users
+
     def update_most_recent_tweet(self, json: dict):
         latest_tweet = json.get("meta").get("newest_id")
         if latest_tweet:
