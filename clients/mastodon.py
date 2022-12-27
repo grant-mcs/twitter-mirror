@@ -2,25 +2,23 @@ import os
 import requests
 from urllib.parse import urlparse
 
+from model.users import User
+
 class Mastodon():
 
-    def bearer_token(self):
-        # export 'MASTODON_BEARER_TOKEN'='<your_bearer_token>'
-        return os.environ.get("MASTODON_BEARER_TOKEN")
-
-    def headers(self):
+    def headers(self, user: User):
         return {
-            "Authorization": f"Bearer " + self.bearer_token(),
+            "Authorization": f"Bearer {user.mastodon_token}",
             "User-Agent": "twitter-mirror"
         }
 
-    def post_toot(self, tweet):
+    def post_toot(self, tweet, user):
         mediaIds = []
         for item in tweet.media:
             # Possible types are 'photo', 'animated_gif', and 'video'
             itemType = item.get("type")
             if itemType == "photo" or itemType == "animated_gif":
-                mediaId = self.upload_media(item)
+                mediaId = self.upload_media(item, user)
                 if mediaId:
                     mediaIds.append(mediaId)
 
@@ -28,7 +26,8 @@ class Mastodon():
         if mediaIds:
             params["media_ids[]"] = ','.join(mediaIds)
 
-        response = requests.post("https://mstdn.ca/api/v1/statuses", headers=self.headers(), params=params)
+        url = f"https://{user.mastodon_instance}/api/v1/statuses"
+        response = requests.post(url, headers=self.headers(user), params=params)
         if response.status_code != 200:
             raise Exception(
                 "Request returned an error: {} {}".format(
@@ -37,7 +36,7 @@ class Mastodon():
             )
         return response.json()
 
-    def upload_media(self, item: dict):
+    def upload_media(self, item: dict, user: User):
         mediaContent = requests.get(item.get("url")).content
         if not mediaContent:
             print("\nError: Unable to download " + item.get("type") + " from " + item.get("url"))
@@ -47,7 +46,9 @@ class Mastodon():
         files = {
             'file': (parsedUrl.path, mediaContent),
         }
-        response = requests.request("POST", "https://mstdn.ca/api/v2/media", headers=self.headers(), files=files)
+        
+        url = f"https://{user.mastodon_instance}/api/v2/media"
+        response = requests.request("POST", url, headers=self.headers(user), files=files)
         json = response.json()
         return json.get("id")
 

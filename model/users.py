@@ -1,8 +1,12 @@
 class User():
     twitter_id: str
+    mastodon_instance: str
+    mastodon_token: str
 
-    def __init__(self, twitter_id: str):
+    def __init__(self, twitter_id: str, mastodon_instance: str, mastodon_token: str):
         self.twitter_id = twitter_id
+        self.mastodon_instance = mastodon_instance
+        self.mastodon_token = mastodon_token
 
     def update_most_recent_tweet(self, json: dict):
         latest_tweet = json.get("meta").get("newest_id")
