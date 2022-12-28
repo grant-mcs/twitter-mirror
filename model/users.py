@@ -29,7 +29,12 @@ class User():
         return users
 
     def update_most_recent_tweet(self, json: dict):
-        latest_tweet = json.get("meta").get("newest_id")
+        meta = json.get("meta")
+        if not meta:
+            print(f"\nError: no 'meta' found in Twitter results\n")
+            return
+
+        latest_tweet = meta.get("newest_id")
         if latest_tweet:
             f = open("data/" + self.twitter_id + ".latest", "w")
             f.write(latest_tweet)
