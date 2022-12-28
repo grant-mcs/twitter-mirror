@@ -48,6 +48,10 @@ class Mastodon():
             return None
 
         parsedUrl = urlparse(url)
+        if not parsedUrl.path:
+            print("\nError: Unable to parse path from url: " + url)
+            return None
+
         files = {
             'file': (parsedUrl.path, mediaContent),
         }
