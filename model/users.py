@@ -19,8 +19,11 @@ class User():
                 continue
 
             userProperties = line.split()
-            if len(userProperties) == 3:
-                users.append(User(userProperties[0], userProperties[1], userProperties[2]))
+            if len(userProperties) != 3:
+                print(f"\nError: Invalid format for user configuration. Each user must have 3 properties separated by a space (Twitter ID, Mastodon instance, Mastodon access token): {line}\n")
+                continue
+
+            users.append(User(userProperties[0], userProperties[1], userProperties[2]))
 
         f.close()
         return users
