@@ -6,11 +6,16 @@ from model.users import User
 
 class Mastodon():
 
-    def headers(self, user: User):
-        return {
+    def headers(self, user: User, idempotencyKey=None):
+        headers = {
             "Authorization": f"Bearer {user.mastodon_token}",
-            "User-Agent": "twitter-mirror"
+            "User-Agent": "twitter-mirror",
         }
+        if idempotencyKey:
+            headers["Idempotency-Key"] = idempotencyKey
+
+        return headers
+
 
     def post_toot(self, tweet, user):
         mediaIds = []
@@ -27,7 +32,7 @@ class Mastodon():
             params["media_ids[]"] = ','.join(mediaIds)
 
         url = f"https://{user.mastodon_instance}/api/v1/statuses"
-        response = requests.post(url, headers=self.headers(user), params=params)
+        response = requests.post(url, headers=self.headers(user, tweet.id), params=params)
         if response.status_code != 200:
             raise Exception(
                 "Request returned an error: {} {}".format(
