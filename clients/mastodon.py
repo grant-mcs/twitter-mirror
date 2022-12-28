@@ -37,12 +37,17 @@ class Mastodon():
         return response.json()
 
     def upload_media(self, item: dict, user: User):
-        mediaContent = requests.get(item.get("url")).content
-        if not mediaContent:
-            print("\nError: Unable to download " + item.get("type") + " from " + item.get("url"))
+        url = item.get("url")
+        if not url:
+            # Twitter sometimes provides media without a URL
             return None
 
-        parsedUrl = urlparse(item.get("url"))
+        mediaContent = requests.get(url).content
+        if not mediaContent:
+            print("\nError: Unable to download " + item.get("type") + " from " + url)
+            return None
+
+        parsedUrl = urlparse(url)
         files = {
             'file': (parsedUrl.path, mediaContent),
         }
