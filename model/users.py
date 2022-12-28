@@ -13,6 +13,11 @@ class User():
         f = open("data/users", "r")
         users = []
         for line in f:
+            # Users can be commented out with a '#'
+            normalizedLine = line.strip()
+            if normalizedLine.startswith('#') or len(normalizedLine) == 0:
+                continue
+
             userProperties = line.split()
             if len(userProperties) == 3:
                 users.append(User(userProperties[0], userProperties[1], userProperties[2]))
