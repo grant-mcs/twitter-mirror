@@ -13,7 +13,8 @@ def main():
 
         mastodon = Mastodon()
         for tweet in tweets:
-            mastodon.post_toot(tweet, user)
+            response = mastodon.post_toot(tweet, user)
+            user.save_toot_data(response, tweet)
         
         user.update_most_recent_tweet(tweetJson)
 
