@@ -4,11 +4,13 @@ class Tweet():
     referencedTweets: dict
     media: list
     replyTo: str
+    created: str
 
     def __init__(self, tweetData: dict, media: dict, referencedTweetData: dict):
         self.id = tweetData.get("id")
         self.referencedTweets = tweetData.get("referenced_tweets") if tweetData.get("referenced_tweets") else {}
         self.text = tweetData.get("text")
+        self.created = tweetData.get("created_at")
         self.replyTo = None
 
         # Retweets have most of the relevant info in the referenced tweet
@@ -59,6 +61,7 @@ class Tweet():
                 tweet = Tweet(item, media, referencedTweets)
                 tweets.append(tweet)
         
+        tweets.sort(key=lambda tweet: tweet.created)
         return tweets
 
     @staticmethod

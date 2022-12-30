@@ -16,6 +16,7 @@ class TestTweets(unittest.TestCase):
                             "type": "retweeted"
                         }
                     ],
+                    "created_at": "2022-12-30T09:00:31.000Z",
                     "text": "RT @elonmusk: Should I step down ..."
                 },
                 {
@@ -31,6 +32,7 @@ class TestTweets(unittest.TestCase):
                             "type": "replied_to"
                         }
                     ],
+                    "created_at": "2022-12-30T10:00:31.000Z",
                     "text": "@MarcGoldwein @cartervance My next tweet may be of interest. Always scroll down!\n\nhttps://t.co/QzBbheCC8D"
                 },
                 {
@@ -42,11 +44,13 @@ class TestTweets(unittest.TestCase):
                             "type": "replied_to"
                         }
                     ],
+                    "created_at": "2022-12-30T11:00:31.000Z",
                     "text": "@alfred_twu Well the % of 20-21 is flat..."
                 },
                 {
                     "author_id": "281877818",
                     "id": "1604548832401838080",
+                    "created_at": "2022-12-30T16:00:31.000Z",
                     "text": "I'm just a plain old tweet"
                 },
                 {
@@ -58,6 +62,7 @@ class TestTweets(unittest.TestCase):
                             "type": "replied_to"
                         }
                     ],
+                    "created_at": "2022-12-30T08:00:31.000Z",
                     "text": "At least, if we believe this is causal."
                 },
                 {
@@ -69,6 +74,7 @@ class TestTweets(unittest.TestCase):
                             "type": "replied_to"
                         }
                     ],
+                    "created_at": "2022-12-30T13:00:31.000Z",
                     "text": "@kimmytaylor You can see the peak among all age groups!"
                 },
             ],
@@ -189,20 +195,20 @@ class TestTweets(unittest.TestCase):
         }
         tweets = Tweet.parse_tweets_from_json(json)
         self.assertEqual(3, len(tweets))
-        self.assertEqual("I'm just a plain old tweet", tweets[1].text)
-        self.assertEqual(0, len(tweets[1].referencedTweets))
+        self.assertEqual("I'm just a plain old tweet", tweets[2].text)
+        self.assertEqual(0, len(tweets[2].referencedTweets))
 
         # Retweets use the text from the referenced tweet
-        self.assertEqual("RT @elonmusk: Should I step down as head of Twitter? I will abide by the results of this poll.", tweets[0].text)
-        self.assertEqual(1, len(tweets[0].referencedTweets))
-        self.assertEqual(1, len(tweets[0].media))
-        self.assertEqual("https://pbs.twimg.com/media/image1.jpg", tweets[0].media[0].get("url"))
+        self.assertEqual("RT @elonmusk: Should I step down as head of Twitter? I will abide by the results of this poll.", tweets[1].text)
+        self.assertEqual(1, len(tweets[1].referencedTweets))
+        self.assertEqual(1, len(tweets[1].media))
+        self.assertEqual("https://pbs.twimg.com/media/image1.jpg", tweets[1].media[0].get("url"))
 
         # Replies should have the ID of the tweet that was replied to
-        self.assertEqual("At least, if we believe this is causal.", tweets[2].text)
-        self.assertEqual(1, len(tweets[2].referencedTweets))
-        self.assertEqual(0, len(tweets[2].media))
-        self.assertEqual("1604547475913682945", tweets[2].replyTo)
+        self.assertEqual("At least, if we believe this is causal.", tweets[0].text)
+        self.assertEqual(1, len(tweets[0].referencedTweets))
+        self.assertEqual(0, len(tweets[0].media))
+        self.assertEqual("1604547475913682945", tweets[0].replyTo)
 
 
     def test_parse_authors(self):
