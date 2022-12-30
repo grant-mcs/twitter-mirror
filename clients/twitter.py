@@ -39,5 +39,6 @@ class Twitter():
 
     def latest_tweet_content(self, user_id: str, since_id: str):
         expansions = "referenced_tweets.id,referenced_tweets.id.author_id,attachments.media_keys"
+        tweetFields = "created_at"
         mediaFields = "url"
-        return self.get_tweets(user_id, {"since_id": since_id, "expansions": expansions, "media.fields": mediaFields})
+        return self.get_tweets(user_id, {"since_id": since_id, "expansions": expansions, "tweet.fields": tweetFields, "media.fields": mediaFields})
