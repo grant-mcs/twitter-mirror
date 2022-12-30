@@ -3,11 +3,13 @@ class Tweet():
     text: str
     referencedTweets: dict
     media: list
+    replyTo: str
 
     def __init__(self, tweetData: dict, media: dict, referencedTweetData: dict):
         self.id = tweetData.get("id")
         self.referencedTweets = tweetData.get("referenced_tweets") if tweetData.get("referenced_tweets") else {}
         self.text = tweetData.get("text")
+        self.replyTo = None
 
         # Retweets have most of the relevant info in the referenced tweet
         if self.is_retweet():
@@ -15,9 +17,16 @@ class Tweet():
             self.media = Tweet.parse_media_from_json(self.retweet_data(referencedTweetData), media)
         else:
             self.media = Tweet.parse_media_from_json(tweetData, media)
+            self.set_reply_to()
+
 
     def __str__(self):
         return "Tweet " + self.id + ", text: \"" + self.text + "\", media = " + str(self.media) + ", referenced tweets = " + str(self.referencedTweets)
+
+    def set_reply_to(self):
+        for ref in self.referencedTweets:
+            if ref.get("type") == "replied_to":
+                self.replyTo = ref.get("id")
 
     def is_retweet(self):
         return self.text.startswith("RT ") and \

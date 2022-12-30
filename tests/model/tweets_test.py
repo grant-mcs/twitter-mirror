@@ -58,7 +58,7 @@ class TestTweets(unittest.TestCase):
                             "type": "replied_to"
                         }
                     ],
-                    "text": "@emollick At least, if we believe this is causal."
+                    "text": "At least, if we believe this is causal."
                 },
                 {
                     "author_id": "281877818",
@@ -125,19 +125,9 @@ class TestTweets(unittest.TestCase):
                         "text": "@Noahpinion Around that time the University of California put in a rule that requires students to graduate in 4 years, previously many students took 5 or more years to graduate.  Did other colleges do this also?\n\nIt'd explain how there are now fewer older students, but more age 20-21"
                     },
                     {
-                        "author_id": "39125788",
+                        "author_id": "281877818",
                         "id": "1604547475913682945",
-                        "referenced_tweets": [
-                            {
-                                "id": "1603834378861281302",
-                                "type": "quoted"
-                            },
-                            {
-                                "id": "1604545827505983488",
-                                "type": "replied_to"
-                            }
-                        ],
-                        "text": "@Noahpinion Worse in combination with this paper. https://t.co/dN0mMv0jkI"
+                        "text": "Worse in combination with this paper. https://t.co/dN0mMv0jkI"
                     },
                     {
                         "author_id": "281877818",
@@ -179,11 +169,6 @@ class TestTweets(unittest.TestCase):
                         "username": "kimmytaylor"
                     },
                     {
-                        "id": "39125788",
-                        "name": "Ethan Mollick",
-                        "username": "emollick"
-                    },
-                    {
                         "id": "975493802197594112",
                         "name": "Alfred Twu",
                         "username": "alfred_twu"
@@ -203,7 +188,7 @@ class TestTweets(unittest.TestCase):
             }
         }
         tweets = Tweet.parse_tweets_from_json(json)
-        self.assertEqual(2, len(tweets))
+        self.assertEqual(3, len(tweets))
         self.assertEqual("I'm just a plain old tweet", tweets[1].text)
         self.assertEqual(0, len(tweets[1].referencedTweets))
 
@@ -212,6 +197,12 @@ class TestTweets(unittest.TestCase):
         self.assertEqual(1, len(tweets[0].referencedTweets))
         self.assertEqual(1, len(tweets[0].media))
         self.assertEqual("https://pbs.twimg.com/media/image1.jpg", tweets[0].media[0].get("url"))
+
+        # Replies should have the ID of the tweet that was replied to
+        self.assertEqual("At least, if we believe this is causal.", tweets[2].text)
+        self.assertEqual(1, len(tweets[2].referencedTweets))
+        self.assertEqual(0, len(tweets[2].media))
+        self.assertEqual("1604547475913682945", tweets[2].replyTo)
 
 
     def test_parse_authors(self):
