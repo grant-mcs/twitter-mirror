@@ -28,8 +28,14 @@ class Mastodon():
                     mediaIds.append(mediaId)
 
         params = {"status": tweet.text}
+
         if mediaIds:
             params["media_ids[]"] = ','.join(mediaIds)
+
+        if tweet.replyTo:
+            tootId = user.toot_id_for_tweet(tweet)
+            if tootId:
+                params["in_reply_to_id"] = tootId
 
         url = f"https://{user.mastodon_instance}/api/v1/statuses"
         response = requests.post(url, headers=self.headers(user, tweet.id), params=params)
