@@ -1,4 +1,5 @@
 import os
+from clients.db import DB
 from model.tweets import Tweet
 
 
@@ -59,31 +60,12 @@ class User():
         if self.toot_id_for_tweet(tweet):
             return True
 
-        f = open("data/" + self.twitter_id + ".toots", "a")
-        f.write(f"{tootId} {tweet.id}\n")
-        f.close()
+        db = DB.connect()
+        result = db.execute("INSERT INTO toot_map (toot_id, tweet_id) VALUES (?, ?)", [tootId, tweet.id])
 
-        return True
+        return result > 0
 
     def toot_id_for_tweet(self, tweet: Tweet):
-        filename = f"data/{self.twitter_id}.toots"
-        if not os.path.exists(filename):
-            return None
-
-        f = open(filename, "r")
-        for line in f:
-            # Ignore empty lines
-            if len(line.strip()) == 0:
-                continue
-
-            tootMapping = line.split()
-            if len(tootMapping) != 2:
-                print(f"\nError: Invalid format for toot mapping. Each mapping must have 2 properties separated by a space (tweet ID, toot ID): {line}\n")
-                continue
-
-            if tootMapping[1] == tweet.id:
-                return tootMapping[0]
-
-        f.close()
-        return None
+        db = DB.connect()
+        return db.query_value("SELECT toot_id FROM toot_map WHERE tweet_id = ?", [tweet.id])
 

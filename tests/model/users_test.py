@@ -6,9 +6,6 @@ from model.users import User
 
 class TestUsers(unittest.TestCase):
 
-    def setUp(self):
-        os.remove("data/12345.toots")
-
     def test_save_toot_data(self):
         user = User("12345", "mastodon.test", "token_ABC")
 
