@@ -30,3 +30,8 @@ class DB():
     def query(self, stmt: str, params: list=[]):
         self.cursor.execute(stmt, params)
         return self.cursor.fetchall()
+
+    def query_value(self, stmt: str, params: list=[]):
+        self.cursor.execute(stmt, params)
+        tuple = self.cursor.fetchone()
+        return tuple[0] if tuple else None
