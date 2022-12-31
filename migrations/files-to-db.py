@@ -7,7 +7,7 @@ def main():
     tootFiles = os.listdir("data/")
     for path in tootFiles:
         if path == "users":
-            with open(path, "r") as f:
+            with open(f"data/{path}", "r") as f:
                 for line in f:
                     if len(line.strip()) == 0:
                         continue
@@ -24,6 +24,15 @@ def main():
                     result = db.query("SELECT * FROM toot_map WHERE toot_id = ?", [tootMapping[0]])
                     if not result:
                         db.execute("INSERT INTO toot_map (toot_id, tweet_id) VALUES (?, ?)", [tootMapping[0], tootMapping[1]])
+
+    # The users must be added to the DB before most recent tweet values can be added
+    tootFiles = os.listdir("data/")
+    for path in tootFiles:
+        if path.endswith(".latest"):
+            with open(f"data/{path}", "r") as f:
+                latest = f.read().strip()
+                userId = path[:(len(path) - 7)]
+                db.execute("UPDATE users SET most_recent_tweet = ? WHERE twitter_id = ?", [latest, userId])
 
 
 if __name__ == "__main__":

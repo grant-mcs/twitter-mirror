@@ -1,4 +1,3 @@
-import os
 from clients.db import DB
 from model.tweets import Tweet
 
@@ -31,15 +30,12 @@ class User():
 
         latest_tweet = meta.get("newest_id")
         if latest_tweet:
-            f = open("data/" + self.twitter_id + ".latest", "w")
-            f.write(latest_tweet)
-            f.close()
+            db = DB.connect()
+            db.execute("UPDATE users SET most_recent_tweet = ? WHERE twitter_id = ?", [latest_tweet, self.twitter_id])
 
     def most_recent_tweet(self):
-        f = open("data/" + self.twitter_id + ".latest", "r")
-        mostRecentTweet = f.read().strip()
-        f.close()
-        return mostRecentTweet
+        db = DB.connect()
+        return db.query_value("SELECT most_recent_tweet FROM users WHERE twitter_id = ?", [self.twitter_id])
     
     def save_toot_data(self, tootData: dict, tweet: Tweet):
         tootId = tootData.get("id")
