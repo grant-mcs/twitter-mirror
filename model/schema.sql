@@ -5,4 +5,11 @@ CREATE TABLE IF NOT EXISTS toot_map (
     PRIMARY KEY (toot_id)
 );
 CREATE INDEX tweet_id ON toot_map(tweet_id);
+
+CREATE TABLE IF NOT EXISTS users (
+    twitter_id VARCHAR(64) NOT NULL,
+    mastodon_instance VARCHAR(128) NOT NULL,
+    mastodon_token VARCHAR(128) NOT NULL,
+    PRIMARY KEY (twitter_id)
+);
 COMMIT;

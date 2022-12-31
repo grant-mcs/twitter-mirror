@@ -15,22 +15,12 @@ class User():
 
     @staticmethod
     def load_users():
-        f = open("data/users", "r")
+        db = DB.connect()
+        userData = db.query("SELECT twitter_id, mastodon_instance, mastodon_token FROM users")
         users = []
-        for line in f:
-            # Users can be commented out with a '#'
-            normalizedLine = line.strip()
-            if normalizedLine.startswith('#') or len(normalizedLine) == 0:
-                continue
+        for u in userData:
+            users.append(User(u[0], u[1], u[2]))
 
-            userProperties = line.split()
-            if len(userProperties) != 3:
-                print(f"\nError: Invalid format for user configuration. Each user must have 3 properties separated by a space (Twitter ID, Mastodon instance, Mastodon access token): {line}\n")
-                continue
-
-            users.append(User(userProperties[0], userProperties[1], userProperties[2]))
-
-        f.close()
         return users
 
     def update_most_recent_tweet(self, json: dict):
