@@ -1,6 +1,7 @@
+import html
+
 class Tweet():
     id: int
-    text: str
     referencedTweets: dict
     media: list
     replyTo: str
@@ -24,6 +25,14 @@ class Tweet():
 
     def __str__(self):
         return "Tweet " + self.id + ", text: \"" + self.text + "\", media = " + str(self.media) + ", referenced tweets = " + str(self.referencedTweets)
+
+    @property
+    def text(self):
+        return self.__text
+
+    @text.setter
+    def text(self, val: str):
+        self.__text = html.unescape(val)
 
     def set_reply_to(self):
         for ref in self.referencedTweets:

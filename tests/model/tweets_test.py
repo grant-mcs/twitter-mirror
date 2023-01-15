@@ -63,7 +63,7 @@ class TestTweets(unittest.TestCase):
                         }
                     ],
                     "created_at": "2022-12-30T08:00:31.000Z",
-                    "text": "At least, if we believe this is causal."
+                    "text": "At least &gt; if we believe this is causal."
                 },
                 {
                     "author_id": "281877818",
@@ -205,7 +205,7 @@ class TestTweets(unittest.TestCase):
         self.assertEqual("https://pbs.twimg.com/media/image1.jpg", tweets[1].media[0].get("url"))
 
         # Replies should have the ID of the tweet that was replied to
-        self.assertEqual("At least, if we believe this is causal.", tweets[0].text)
+        self.assertEqual("At least > if we believe this is causal.", tweets[0].text)
         self.assertEqual(1, len(tweets[0].referencedTweets))
         self.assertEqual(0, len(tweets[0].media))
         self.assertEqual("1604547475913682945", tweets[0].replyTo)
