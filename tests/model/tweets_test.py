@@ -77,6 +77,21 @@ class TestTweets(unittest.TestCase):
                     "created_at": "2022-12-30T13:00:31.000Z",
                     "text": "@kimmytaylor You can see the peak among all age groups!"
                 },
+                {
+                    "referenced_tweets": [
+                        {
+                            "type": "quoted",
+                            "id": "1659588471571226625"
+                        }
+                    ],
+                    "text": "This is a quote tweet https://t.co/GbqWB2I5Lk",
+                    "author_id": "281877818",
+                    "edit_history_tweet_ids": [
+                        "1660003766488403968"
+                    ],
+                    "id": "1660003766488403968",
+                    "created_at": "2023-05-20T19:25:13.000Z"
+                },
             ],
             "includes": {
                 "media": [
@@ -157,6 +172,15 @@ class TestTweets(unittest.TestCase):
                         ],
                         "text": "@Noahpinion I did. Also there will be 15% less high school students by 2026."
                     },
+                    {
+                        "edit_history_tweet_ids": [
+                            "1659588471571226625"
+                        ],
+                        "id": "1659588471571226625",
+                        "text": "This is something worth quoting",
+                        "created_at": "2023-05-19T15:54:59.000Z",
+                        "author_id": "1003777482"
+                    },
                 ],
                 "users": [
                     {
@@ -184,6 +208,11 @@ class TestTweets(unittest.TestCase):
                         "name": "Marc Goldwein",
                         "username": "MarcGoldwein"
                     },
+                    {
+                        "id": "1003777482",
+                        "name": "Annie van Leur",
+                        "username": "AnnevanLeur"
+                    }
                 ],
             },
             "meta": {
@@ -194,7 +223,7 @@ class TestTweets(unittest.TestCase):
             }
         }
         tweets = Tweet.parse_tweets_from_json(json)
-        self.assertEqual(3, len(tweets))
+        self.assertEqual(4, len(tweets))
         self.assertEqual("I'm just a plain old tweet", tweets[2].text)
         self.assertEqual(0, len(tweets[2].referencedTweets))
 
@@ -209,6 +238,11 @@ class TestTweets(unittest.TestCase):
         self.assertEqual(1, len(tweets[0].referencedTweets))
         self.assertEqual(0, len(tweets[0].media))
         self.assertEqual("1604547475913682945", tweets[0].replyTo)
+
+        # Quote tweets should include the text of the original tweet
+        self.assertEqual("This is a quote tweet https://t.co/GbqWB2I5Lk\n====\nThis is something worth quoting", tweets[3].text)
+        self.assertEqual(1, len(tweets[3].referencedTweets))
+        self.assertEqual(0, len(tweets[3].media))
 
 
     def test_parse_authors(self):
@@ -341,11 +375,11 @@ class TestTweets(unittest.TestCase):
             "type": "replied_to",
             "id": 1235,
         }]
-        referencedTweetData = [{
+        referencedTweetData = {1235: {
             "id": 1235,
             "text": "Am I not a quote?",
             "created_at": "2023-05-23T11:11:11Z",
-        }]
+        }}
         tweet = Tweet(tweetData, {}, referencedTweetData)
         self.assertFalse(tweet.is_quote_tweet())
 

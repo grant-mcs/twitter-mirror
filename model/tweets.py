@@ -14,13 +14,14 @@ class Tweet():
         self.created = tweetData.get("created_at")
         self.replyTo = None
 
-        # Retweets have most of the relevant info in the referenced tweet
+        self.update_text(referencedTweetData)
+
         if self.is_retweet():
-            self.update_text(referencedTweetData)
             self.media = Tweet.parse_media_from_json(self.retweet_data(referencedTweetData), media)
         else:
             self.media = Tweet.parse_media_from_json(tweetData, media)
-            self.set_reply_to()
+
+        self.set_reply_to()
 
 
     def __str__(self):
@@ -57,6 +58,9 @@ class Tweet():
             prefixIdx = self.text.index(":") + 2
             prefix = self.text[:prefixIdx]
             self.text = prefix + self.retweet_data(referencedTweetData).get("text")
+        elif self.is_quote_tweet():
+            quoteTweetDivider = "\n====\n"
+            self.text = self.text + quoteTweetDivider + self.retweet_data(referencedTweetData).get("text")
 
     @staticmethod
     def parse_tweets_from_json(json: dict):
