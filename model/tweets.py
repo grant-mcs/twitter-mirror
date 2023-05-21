@@ -26,7 +26,18 @@ class Tweet():
 
 
     def __str__(self):
-        return "Tweet " + self.id + ", text: \"" + self.text + "\", media = " + str(self.media) + ", referenced tweets = " + str(self.referencedTweets)
+        description = "Tweet " + self.id
+        description += ", text: \"" + self.text
+        description += "\", media = " + str(self.media)
+        description += ", referenced tweets = " + str(self.referencedTweets)
+        if self.is_retweet():
+            description += ", retweet"
+        if self.is_quote_tweet():
+            description += ", quote tweet"
+        if self.replyTo:
+            description += ", reply to: " + self.replyTo
+
+        return description
 
     @property
     def text(self):

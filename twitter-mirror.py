@@ -22,6 +22,7 @@ def main():
         for tweet in tweets:
             response = mastodon.post_toot(tweet, user)
             user.save_toot_data(response, tweet)
+            logging.info("Posted tweet: " + str(tweet))
         
         user.update_most_recent_tweet(tweetJson)
 
