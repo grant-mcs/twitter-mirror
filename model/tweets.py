@@ -44,6 +44,10 @@ class Tweet():
                len(self.referencedTweets) == 1 and \
                self.referencedTweets[0].get("type") == "retweeted"
 
+    def is_quote_tweet(self):
+        return len(self.referencedTweets) == 1 and \
+               self.referencedTweets[0].get("type") == "quoted"
+
     def retweet_data(self, referencedTweetData: dict):
         return referencedTweetData.get(self.referencedTweets[0].get("id"))
 

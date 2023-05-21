@@ -327,5 +327,32 @@ class TestTweets(unittest.TestCase):
         media = Tweet.parse_media_from_json(tweet, mediaData)
         self.assertEqual([{"key": "1234_12", "type": "photo", "url": "https://testimg.com/1234_12"}], media)
 
+    def test_is_quote_tweet(self):
+        tweetData = {
+            "id": 1234,
+            "text": "Hath not quote tweet eyes?",
+            "created_at": "2023-05-23T12:12:12Z",
+        }
+        tweet = Tweet(tweetData, {}, {})
+        self.assertFalse(tweet.is_quote_tweet())
+
+        # Add a referenced tweet that is not quoted
+        tweetData["referenced_tweets"] = [{
+            "type": "replied_to",
+            "id": 1235,
+        }]
+        referencedTweetData = [{
+            "id": 1235,
+            "text": "Am I not a quote?",
+            "created_at": "2023-05-23T11:11:11Z",
+        }]
+        tweet = Tweet(tweetData, {}, referencedTweetData)
+        self.assertFalse(tweet.is_quote_tweet())
+
+        # Now make that referenced tweet a quote
+        tweetData["referenced_tweets"][0]["type"] = "quoted"
+        tweet = Tweet(tweetData, {}, referencedTweetData)
+        self.assertTrue(tweet.is_quote_tweet())
+
 if __name__ == '__main__':
     unittest.main()
