@@ -7,19 +7,20 @@ class Tweet():
     replyTo: str
     created: str
 
-    def __init__(self, tweetData: dict, media: dict, referencedTweetData: dict):
+    def __init__(self, tweetData: dict, media: dict, referencedTweetData: dict, authors: dict):
+        media = {} if media == None else media
+        referencedTweetData = {} if referencedTweetData == None else referencedTweetData
+        authors = {} if authors == None else authors
+
         self.id = tweetData.get("id")
         self.referencedTweets = tweetData.get("referenced_tweets") if tweetData.get("referenced_tweets") else {}
         self.text = tweetData.get("text")
         self.created = tweetData.get("created_at")
         self.replyTo = None
 
-        self.update_text(referencedTweetData)
-
-        if self.is_retweet():
-            self.media = Tweet.parse_media_from_json(self.retweet_data(referencedTweetData), media)
-        else:
-            self.media = Tweet.parse_media_from_json(tweetData, media)
+        self.update_text(referencedTweetData, authors)
+        mediaSource = self.retweet_data(referencedTweetData) if (self.is_retweet() or self.is_quote_tweet()) else tweetData
+        self.media = Tweet.parse_media_from_json(mediaSource, media)
 
         self.set_reply_to()
 
@@ -52,7 +53,7 @@ class Tweet():
     def retweet_data(self, referencedTweetData: dict):
         return referencedTweetData.get(self.referencedTweets[0].get("id"))
 
-    def update_text(self, referencedTweetData: dict):
+    def update_text(self, referencedTweetData: dict, authors: dict):
         # If this is a retweet, use the text from the referenced tweet
         if self.is_retweet():
             prefixIdx = self.text.index(":") + 2
@@ -60,7 +61,9 @@ class Tweet():
             self.text = prefix + self.retweet_data(referencedTweetData).get("text")
         elif self.is_quote_tweet():
             quoteTweetDivider = "\n====\n"
-            self.text = self.text + quoteTweetDivider + self.retweet_data(referencedTweetData).get("text")
+            quotedTweetData = self.retweet_data(referencedTweetData)
+            authorName = Tweet.get_author_username(authors, quotedTweetData.get("author_id"))
+            self.text = self.text + quoteTweetDivider + authorName + ": " + quotedTweetData.get("text")
 
     @staticmethod
     def parse_tweets_from_json(json: dict):
@@ -71,11 +74,12 @@ class Tweet():
         includes = json.get("includes")
         referencedTweets = Tweet.parse_included_tweets(includes.get("tweets")) if includes else {}
         media = Tweet.parse_included_media(includes.get("media")) if includes else {}
+        authors = Tweet.parse_authors(includes.get("users"))
 
         tweets = []
         for item in data:
             if Tweet.include_tweet(item, referencedTweets):
-                tweet = Tweet(item, media, referencedTweets)
+                tweet = Tweet(item, media, referencedTweets, authors)
                 tweets.append(tweet)
         
         tweets.sort(key=lambda tweet: tweet.created)
@@ -127,12 +131,21 @@ class Tweet():
     def parse_authors(json: list):
         # Return a dict of author IDs to their 'name' and 'username'
         authors = {}
+        json = json if json else {}
         for author in json:
             authors[author.get("id")] = {
                 "name": author.get("name"),
                 "username": author.get("username"),
             }
         return authors
+
+    @staticmethod
+    def get_author_username(authors: dict, author_id: int):
+        author = authors.get(author_id)
+        if author:
+            return author.get("username")
+
+        return "Unknown"
 
     @staticmethod
     def parse_included_tweets(json: list):

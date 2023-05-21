@@ -240,7 +240,7 @@ class TestTweets(unittest.TestCase):
         self.assertEqual("1604547475913682945", tweets[0].replyTo)
 
         # Quote tweets should include the text of the original tweet
-        self.assertEqual("This is a quote tweet https://t.co/GbqWB2I5Lk\n====\nThis is something worth quoting", tweets[3].text)
+        self.assertEqual("This is a quote tweet https://t.co/GbqWB2I5Lk\n====\nAnnevanLeur: This is something worth quoting", tweets[3].text)
         self.assertEqual(1, len(tweets[3].referencedTweets))
         self.assertEqual(0, len(tweets[3].media))
 
@@ -367,7 +367,7 @@ class TestTweets(unittest.TestCase):
             "text": "Hath not quote tweet eyes?",
             "created_at": "2023-05-23T12:12:12Z",
         }
-        tweet = Tweet(tweetData, {}, {})
+        tweet = Tweet(tweetData, {}, {}, {})
         self.assertFalse(tweet.is_quote_tweet())
 
         # Add a referenced tweet that is not quoted
@@ -380,12 +380,12 @@ class TestTweets(unittest.TestCase):
             "text": "Am I not a quote?",
             "created_at": "2023-05-23T11:11:11Z",
         }}
-        tweet = Tweet(tweetData, {}, referencedTweetData)
+        tweet = Tweet(tweetData, {}, referencedTweetData, {})
         self.assertFalse(tweet.is_quote_tweet())
 
         # Now make that referenced tweet a quote
         tweetData["referenced_tweets"][0]["type"] = "quoted"
-        tweet = Tweet(tweetData, {}, referencedTweetData)
+        tweet = Tweet(tweetData, {}, referencedTweetData, {})
         self.assertTrue(tweet.is_quote_tweet())
 
 if __name__ == '__main__':
