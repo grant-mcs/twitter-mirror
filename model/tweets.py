@@ -63,7 +63,7 @@ class Tweet():
             quoteTweetDivider = "\n====\n"
             quotedTweetData = self.retweet_data(referencedTweetData)
             authorName = Tweet.get_author_username(authors, quotedTweetData.get("author_id"))
-            self.text = self.text + quoteTweetDivider + authorName + ": " + quotedTweetData.get("text")
+            self.text = self.text + quoteTweetDivider + "@" + authorName + ": " + quotedTweetData.get("text")
 
     @staticmethod
     def parse_tweets_from_json(json: dict):

@@ -240,7 +240,7 @@ class TestTweets(unittest.TestCase):
         self.assertEqual("1604547475913682945", tweets[0].replyTo)
 
         # Quote tweets should include the text of the original tweet
-        self.assertEqual("This is a quote tweet https://t.co/GbqWB2I5Lk\n====\nAnnevanLeur: This is something worth quoting", tweets[3].text)
+        self.assertEqual("This is a quote tweet https://t.co/GbqWB2I5Lk\n====\n@AnnevanLeur: This is something worth quoting", tweets[3].text)
         self.assertEqual(1, len(tweets[3].referencedTweets))
         self.assertEqual(0, len(tweets[3].media))
 
