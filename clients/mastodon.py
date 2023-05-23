@@ -5,6 +5,10 @@ from urllib.parse import urlparse
 from model.users import User
 
 class Mastodon():
+    currentTootMap: dict = {}
+
+    def __init__(self) -> None:
+        currentTootMap = {}
 
     def headers(self, user: User, idempotencyKey=None):
         headers = {
@@ -33,7 +37,7 @@ class Mastodon():
             params["media_ids[]"] = ','.join(mediaIds)
 
         if tweet.replyTo:
-            tootId = user.toot_id_for_tweet(tweet)
+            tootId = self.toot_id_for_tweet(tweet, user)
             if tootId:
                 params["in_reply_to_id"] = tootId
 
@@ -45,7 +49,14 @@ class Mastodon():
                     response.status_code, response.text
                 )
             )
-        return response.json()
+        responseJson = response.json()
+        self.currentTootMap[tweet.id] = responseJson.get("id")
+        return responseJson
+
+    def toot_id_for_tweet(self, tweet, user):
+        if tweet.id in self.currentTootMap:
+            return self.currentTootMap[tweet.id]
+        return user.toot_id_for_tweet(tweet)
 
     def upload_media(self, item: dict, user: User):
         url = item.get("url")
