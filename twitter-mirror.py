@@ -12,22 +12,21 @@ def main():
     )
 
     twitter = Twitter()
+    mastodon = Mastodon()
     users = User.load_users()
     for user in users:
         mostRecentTweet = user.most_recent_tweet()
         tweetJson = twitter.latest_tweet_content(user.twitter_id, mostRecentTweet)
-        tweets = Tweet.parse_tweets_from_json(tweetJson)
+        if tweetJson:
+            tweets = Tweet.parse_tweets_from_json(tweetJson)
 
-        mastodon = Mastodon()
-        for tweet in tweets:
-            response = mastodon.post_toot(tweet, user)
-            user.save_toot_data(response, tweet)
-            logging.info("Posted tweet: " + str(tweet))
-        
-        user.update_most_recent_tweet(tweetJson)
-
-        logging.info("Posted " + str(len(tweets)) + " new toots")
-
+            for tweet in tweets:
+                response = mastodon.post_toot(tweet, user)
+                if response:
+                    user.save_toot_data(response, tweet)
+                    logging.info("Posted tweet: " + str(tweet))
+            
+            user.update_most_recent_tweet(tweetJson)
 
 
 if __name__ == "__main__":

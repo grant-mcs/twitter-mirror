@@ -1,5 +1,6 @@
 import requests
 import logging
+import json
 from urllib.parse import urlparse
 
 from model.users import User
@@ -44,11 +45,9 @@ class Mastodon():
         url = f"https://{user.mastodon_instance}/api/v1/statuses"
         response = requests.post(url, headers=self.headers(user, tweet.id), params=params)
         if response.status_code != 200:
-            raise Exception(
-                "Request returned an error: {} {}".format(
-                    response.status_code, response.text
-                )
-            )
+            logging.warning(f"Failed to post new status to Mastodon for tweet {tweet.id} (status: {response.status_code}): {response.text}")
+            return None
+
         responseJson = response.json()
         self.currentTootMap[tweet.id] = responseJson.get("id")
         return responseJson
