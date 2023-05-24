@@ -7,7 +7,7 @@ class Tweet():
     replyTo: str
     created: str
 
-    def __init__(self, tweetData: dict, media: dict, referencedTweetData: dict, authors: dict):
+    def __init__(self, tweetData: dict, media: dict = {}, referencedTweetData: dict = {}, authors: dict = {}):
         media = {} if media == None else media
         referencedTweetData = {} if referencedTweetData == None else referencedTweetData
         authors = {} if authors == None else authors
