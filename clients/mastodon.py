@@ -1,14 +1,14 @@
-import os
 import requests
+import logging
 from urllib.parse import urlparse
 
 from model.users import User
 
 class Mastodon():
-    currentTootMap: dict = {}
+    currentTootMap: dict
 
     def __init__(self) -> None:
-        currentTootMap = {}
+        self.currentTootMap = {}
 
     def headers(self, user: User, idempotencyKey=None):
         headers = {
@@ -37,7 +37,7 @@ class Mastodon():
             params["media_ids[]"] = ','.join(mediaIds)
 
         if tweet.replyTo:
-            tootId = self.toot_id_for_tweet(tweet, user)
+            tootId = self.toot_id_for_tweet(tweet.replyTo, user)
             if tootId:
                 params["in_reply_to_id"] = tootId
 
@@ -53,10 +53,10 @@ class Mastodon():
         self.currentTootMap[tweet.id] = responseJson.get("id")
         return responseJson
 
-    def toot_id_for_tweet(self, tweet, user):
-        if tweet.id in self.currentTootMap:
-            return self.currentTootMap[tweet.id]
-        return user.toot_id_for_tweet(tweet)
+    def toot_id_for_tweet(self, tweet_id, user):
+        if tweet_id in self.currentTootMap:
+            return self.currentTootMap[tweet_id]
+        return user.toot_id_for_tweet(tweet_id)
 
     def upload_media(self, item: dict, user: User):
         url = item.get("url")

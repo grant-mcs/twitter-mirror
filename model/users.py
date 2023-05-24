@@ -43,7 +43,7 @@ class User():
             return False
 
         # If this tweet has already been posted, nothing more to do
-        if self.toot_id_for_tweet(tweet):
+        if self.toot_id_for_tweet(tweet.id):
             return True
 
         db = DB.connect()
@@ -51,7 +51,7 @@ class User():
 
         return result > 0
 
-    def toot_id_for_tweet(self, tweet: Tweet):
+    def toot_id_for_tweet(self, tweet_id: str):
         db = DB.connect()
-        return db.query_value("SELECT toot_id FROM toot_map WHERE tweet_id = ?", [tweet.id])
+        return db.query_value("SELECT toot_id FROM toot_map WHERE tweet_id = ?", [tweet_id])
 
